@@ -1,0 +1,20 @@
+# Build output
+bin
+
+# Go
+*.test
+*.out
+
+# Environment / secrets
+.env
+*.env
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
