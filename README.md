@@ -239,21 +239,25 @@ dev.example.com {
 ## Protocol flow
 
 ```
-Client                        Caddy (x402avm)              GoPlausible Facilitator
-  │                                 │                                │
-  │── GET /api/premium ────────────>│                                │
-  │<─ 402 + PAYMENT-REQUIRED ───────│                                │
-  │   (accepts: algorand OR base)   │                                │
-  │                                 │                                │
-  │   [Client picks network,        │                                │
-  │    signs payment]               │                                │
-  │                                 │                                │
-  │── GET /api/premium ────────────>│                                │
-  │   PAYMENT-SIGNATURE: <b64>      │── POST /verify ───────────────>│
-  │                                 │<─ {isValid: true} ─────────────│
-  │                                 │── POST /settle ───────────────>│
-  │                                 │<─ {success:true, tx:...} ──────│
-  │<─ 200 + PAYMENT-RESPONSE ───────│                                │
+Client                        Caddy (x402avm)              GoPlausible Facilitator       Backend
+  │                                 │                                │                      │
+  │── GET /api/premium ────────────>│                                │                      │
+  │<─ 402 + PAYMENT-REQUIRED ───────│                                │                      │
+  │   (accepts: algorand OR base)   │                                │                      │
+  │                                 │                                │                      │
+  │   [Client picks network,        │                                │                      │
+  │    signs payment]               │                                │                      │
+  │                                 │                                │                      │
+  │── GET /api/premium ────────────>│                                │                      │
+  │   PAYMENT-SIGNATURE: <b64>      │── POST /verify ───────────────>│                      │
+  │                                 │<─ {isValid: true} ─────────────│                      │
+  │                                 │                                │                      │
+  │                                 │── GET /api/premium ────────────────────────────────>  │
+  │                                 │<─ 200 + response body ──────────────────────────────  │
+  │                                 │                                │                      │
+  │                                 │── POST /settle ───────────────>│                      │
+  │                                 │<─ {success:true, tx:...} ──────│                      │
+  │<─ 200 + PAYMENT-RESPONSE ───────│                                │                      │
 ```
 
 ## License
