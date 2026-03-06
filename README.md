@@ -39,6 +39,9 @@ x402 {
     mime_type    <mime>         # Optional: e.g. application/json
     facilitator_url <url>       # Default: https://facilitator.goplausible.xyz
     dry_run      [true|false]   # Skip on-chain settlement (default: false)
+
+    except  <regexp>            # Skip paywall for paths matching regexp; repeat for multiple
+    ua_match <regexp>           # Only apply paywall when User-Agent matches regexp; repeat for multiple
 }
 ```
 
