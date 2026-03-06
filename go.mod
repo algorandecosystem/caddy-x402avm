@@ -22,6 +22,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/ProjectZKM/Ziren/crates/go-runtime/zkvm_runtime v0.0.0-20251001021608-1fe7b43fc4d6 // indirect
+	github.com/algorand/avm-abi v0.1.1 // indirect
 	github.com/algorand/go-algorand-sdk/v2 v2.6.0 // indirect
 	github.com/algorand/go-codec/codec v1.1.10 // indirect
 	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect

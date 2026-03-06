@@ -46,6 +46,8 @@ github.com/ProjectZKM/Ziren/crates/go-runtime/zkvm_runtime v0.0.0-20251001021608
 github.com/ProjectZKM/Ziren/crates/go-runtime/zkvm_runtime v0.0.0-20251001021608-1fe7b43fc4d6/go.mod h1:ioLG6R+5bUSO1oeGSDxOV3FADARuMoytZCSX6MEMQkI=
 github.com/StackExchange/wmi v1.2.1 h1:VIkavFPXSjcnS+O8yTq7NI32k0R5Aj+v39y29VYDOSA=
 github.com/StackExchange/wmi v1.2.1/go.mod h1:rcmrprowKIVzvc+NUiLncP2uuArMWLCbu9SBzvHz7e8=
+github.com/algorand/avm-abi v0.1.1 h1:dbyQKzXiyaEbzpmqXFB30yAhyqseBsyqXTyZbNbkh2Y=
+github.com/algorand/avm-abi v0.1.1/go.mod h1:+CgwM46dithy850bpTeHh9MC99zpn2Snirb3QTl2O/g=
 github.com/algorand/go-algorand-sdk/v2 v2.6.0 h1:pfL8lloEi26l6PwAFicmPUguWgKpy1eZZTMlQcci5h0=
 github.com/algorand/go-algorand-sdk/v2 v2.6.0/go.mod h1:4ayerzjoWChm3kuVhbgFgURTbaYTtlj0c41eP3av5lw=
 github.com/algorand/go-codec/codec v1.1.10 h1:zmWYU1cp64jQVTOG8Tw8wa+k0VfwgXIPbnDfiVa+5QA=

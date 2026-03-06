@@ -24,33 +24,33 @@ func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error)
 //
 // Syntax:
 //
-// x402 {
-//     accept {
-//         pay_to   <address>
-//         price    <amount>       # e.g. 0.01 or $0.01
-//         network  <network>      # e.g. algorand-mainnet, base, solana-mainnet
-//         scheme   <scheme>       # optional, default: exact
-//     }
-//     accept { ... }             # repeat for each additional accepted network
+//	x402 {
+//	    accept {
+//	        pay_to   <address>
+//	        price    <amount>       # e.g. 0.01 or $0.01
+//	        network  <network>      # e.g. algorand-mainnet, base, solana-mainnet
+//	        scheme   <scheme>       # optional, default: exact
+//	    }
+//	    accept { ... }             # repeat for each additional accepted network
 //
-//     description  <text>        # optional
-//     mime_type    <mime>        # optional, e.g. application/json
-//     facilitator_url <url>      # default: https://facilitator.goplausible.xyz
-//     dry_run      [true|false]  # default: false
+//	    description  <text>        # optional
+//	    mime_type    <mime>        # optional, e.g. application/json
+//	    facilitator_url <url>      # default: https://facilitator.goplausible.xyz
+//	    dry_run      [true|false]  # default: false
 //
-//     # except: skip paywall for paths matching a regexp
-//     except  ^/robots\.txt$
-//     except  ^/\.well-known/
-//     except  ^/favicon\.ico$
-//     except  ^/health$
+//	    # except: skip paywall for paths matching a regexp
+//	    except  ^/robots\.txt$
+//	    except  ^/\.well-known/
+//	    except  ^/favicon\.ico$
+//	    except  ^/health$
 //
-//     # ua_match: only apply paywall when User-Agent matches (regexp)
-//     ua_match  GPTBot|ChatGPT-User|OAI-SearchBot|Google-Extended|Googlebot-Extended
-//     ua_match  anthropic-ai|Claude-Web|ClaudeBot|FacebookBot|Meta-ExternalAgent|meta-externalagent
-//     ua_match  Applebot-Extended|CCBot|PerplexityBot|Amazonbot|cohere-ai|Ai2Bot|Bytespider
-//     ua_match  SemrushBot|AhrefsBot|DataForSeoBot|PetalBot|YouBot|Diffbot|Timpibot
-//     ua_match  ImagesiftBot|Kangaroo.Bot|Sidetrade.indexer.bot|Webz\.io|img2dataset
-// }
+//	    # ua_match: only apply paywall when User-Agent matches (regexp)
+//	    ua_match  GPTBot|ChatGPT-User|OAI-SearchBot|Google-Extended|Googlebot-Extended
+//	    ua_match  anthropic-ai|Claude-Web|ClaudeBot|FacebookBot|Meta-ExternalAgent|meta-externalagent
+//	    ua_match  Applebot-Extended|CCBot|PerplexityBot|Amazonbot|cohere-ai|Ai2Bot|Bytespider
+//	    ua_match  SemrushBot|AhrefsBot|DataForSeoBot|PetalBot|YouBot|Diffbot|Timpibot
+//	    ua_match  ImagesiftBot|Kangaroo.Bot|Sidetrade.indexer.bot|Webz\.io|img2dataset
+//	}
 //
 // Multiple x402 blocks can appear in one Caddyfile, each attached to a
 // different Caddy route; path scoping is handled by Caddy's route/matcher
