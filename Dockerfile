@@ -12,3 +12,6 @@ RUN go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest && \
 FROM caddy:latest
 
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
+
+COPY Caddyfile /etc/caddy/Caddyfile
+   CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]

@@ -1,0 +1,32 @@
+# Caddy only on App Platform. Copy to Caddyfile in caddy-x402avm and set:
+#   - reverse_proxy: your Next.js app URL (e.g. https://yoursite.vercel.app)
+#   - pay_to: your Algorand receiver address
+#   - dry_run: false for production
+# App Platform terminates TLS; Caddy listens on :8080.
+{
+	order x402 before reverse_proxy
+}
+
+http://:8080 {
+
+	log {
+		level INFO
+	}
+
+	x402 {
+		accept {
+			pay_to  5YCWR662A5HIOFYYS2CTIHHYBCIXESVLAOVLZ7CL27PK5SKBROCSRFIJMA
+			price   0.001
+			network algorand-mainnet
+		}
+		description "AquaIndex compatibility check"
+		mime_type application/json
+		dry_run false
+
+		except ^/agent/species
+		except ^/agent/schema
+		except ^/agent/scoring
+	}
+
+	reverse_proxy https://aquaindex.app
+}
