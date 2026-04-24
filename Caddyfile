@@ -1,0 +1,67 @@
+{
+	order x402 before reverse_proxy
+}
+
+# Local testing profile for AgentQuest:
+# - world server runs on :8787
+# - facilitator runs on :4022
+# - caddy listens on :8080
+#
+# Required environment variables:
+#   WORLD_UPSTREAM=http://localhost:8787
+#   FACILITATOR_URL=http://localhost:4022
+#   PROOF_SHARED_SECRET=<same secret as world PAYMENT_PROOF_SHARED_SECRET>
+#   QUOTE_URL=http://localhost:8787/x402/quote
+#   QUOTE_BROKER_TOKEN=<same as world PAYMENT_QUOTE_BROKER_TOKEN>
+#
+http://:8080 {
+	log {
+		level INFO
+	}
+
+	# Health checks bypass payment.
+	route /health {
+		reverse_proxy {$WORLD_UPSTREAM:http://localhost:8787}
+	}
+
+	# Keep auth + session bootstrap + quote endpoint free.
+	route /auth/* {
+		reverse_proxy {$WORLD_UPSTREAM:http://localhost:8787}
+	}
+	route /sessions {
+		reverse_proxy {$WORLD_UPSTREAM:http://localhost:8787}
+	}
+	route /sessions/*/step {
+		reverse_proxy {$WORLD_UPSTREAM:http://localhost:8787}
+	}
+	route /sessions/*/payments/quote {
+		reverse_proxy {$WORLD_UPSTREAM:http://localhost:8787}
+	}
+
+	# Paid action is settlement-gated:
+	# verify + settle MUST complete before request reaches world.
+	route /sessions/*/paid-action {
+		x402 {
+			description "AgentQuest paid action"
+			mime_type application/json
+			facilitator_url {$FACILITATOR_URL:http://localhost:4022}
+			quote_url {$QUOTE_URL:http://localhost:8787/x402/quote}
+			quote_auth_header "Bearer {$QUOTE_BROKER_TOKEN:replace-me}"
+			quote_timeout_ms 3000
+			proof_shared_secret {$PROOF_SHARED_SECRET:replace-me}
+			settlement_gate_path_regex ^/sessions/[^/]+/paid-action$
+			accept {
+				# fallback static accept, used only if quote broker fails
+				pay_to  {$FALLBACK_PAY_TO:5YCWR662A5HIOFYYS2CTIHHYBCIXESVLAOVLZ7CL27PK5SKBROCSRFIJMA}
+				price   {$FALLBACK_PRICE:0.001}
+				network {$FALLBACK_NETWORK:algorand-testnet}
+			}
+		}
+		reverse_proxy {$WORLD_UPSTREAM:http://localhost:8787}
+	}
+
+	# Everything else proxies directly to world.
+	route {
+		reverse_proxy {$WORLD_UPSTREAM:http://localhost:8787}
+	}
+}
