@@ -83,6 +83,25 @@ type X402 struct {
 	// settled. Useful for development and testing.
 	DryRun bool `json:"dry_run,omitempty"`
 
+	// QuoteURL points to an endpoint that returns dynamic split-payment quote data
+	// for the current request. When configured, unauthenticated requests without
+	// PAYMENT-SIGNATURE receive a quote-backed 402 response.
+	QuoteURL string `json:"quote_url,omitempty"`
+
+	// QuoteAuthHeader optionally adds a static Authorization header when calling
+	// QuoteURL.
+	QuoteAuthHeader string `json:"quote_auth_header,omitempty"`
+
+	// QuoteTimeoutMS sets outbound quote fetch timeout in milliseconds.
+	QuoteTimeoutMS int `json:"quote_timeout_ms,omitempty"`
+
+	// SettlementGatePathRegex limits "settle before upstream" behavior to matching
+	// routes. Default targets AgentQuest paid-action endpoint shape.
+	SettlementGatePathRegex string `json:"settlement_gate_path_regex,omitempty"`
+
+	// ProofSharedSecret signs settlement proof passed to upstream.
+	ProofSharedSecret string `json:"proof_shared_secret,omitempty"`
+
 	// Except is a list of regular expressions matched against the request
 	// path. If any pattern matches, the request bypasses x402 processing
 	// entirely and is passed to the next handler without requiring payment.
@@ -101,6 +120,7 @@ type X402 struct {
 	httpServer      *x402http.HTTPServer
 	exceptCompiled  []*regexp.Regexp
 	uaMatchCompiled *regexp.Regexp
+	settlementGate  *regexp.Regexp
 	logger          *zap.Logger
 }
 
@@ -148,6 +168,18 @@ func (x *X402) Provision(ctx caddy.Context) error {
 		}
 		x.uaMatchCompiled = re
 	}
+	if x.SettlementGatePathRegex == "" {
+		x.SettlementGatePathRegex = `^/sessions/[^/]+/paid-action$`
+	}
+	if x.ProofSharedSecret == "" {
+		x.ProofSharedSecret = "replace-me"
+		x.logger.Warn("proof_shared_secret not configured; using insecure default")
+	}
+	settlementGate, err := regexp.Compile(x.SettlementGatePathRegex)
+	if err != nil {
+		return fmt.Errorf("x402: invalid settlement_gate_path_regex %q: %w", x.SettlementGatePathRegex, err)
+	}
+	x.settlementGate = settlementGate
 
 	// ── Convert accepts to SDK PaymentOptions ──────────────────────────
 	sdkOpts := make(x402http.PaymentOptions, 0, len(x.Accepts))
@@ -211,6 +243,8 @@ func (x *X402) Provision(ctx caddy.Context) error {
 	x.logger.Info("x402 middleware provisioned",
 		zap.Int("networks", len(x.Accepts)),
 		zap.String("facilitator", x.FacilitatorURL),
+		zap.String("quote_url", x.QuoteURL),
+		zap.String("settlement_gate_path_regex", x.SettlementGatePathRegex),
 		zap.Bool("dry_run", x.DryRun),
 	)
 	return nil
@@ -243,7 +277,18 @@ func (x *X402) Validate() error {
 	if u.Scheme != "https" && !isLocalhost(u.Host) {
 		return fmt.Errorf("x402: facilitator_url must use HTTPS (got %q)", x.FacilitatorURL)
 	}
-
+	if x.QuoteURL != "" {
+		quoteURL, err := url.Parse(x.QuoteURL)
+		if err != nil {
+			return fmt.Errorf("x402: invalid quote_url: %w", err)
+		}
+		if quoteURL.Scheme != "https" && !isLocalhost(quoteURL.Host) {
+			return fmt.Errorf("x402: quote_url must use HTTPS (got %q)", x.QuoteURL)
+		}
+	}
+	if x.QuoteTimeoutMS < 0 {
+		return fmt.Errorf("x402: quote_timeout_ms must be >= 0")
+	}
 	return nil
 }
 

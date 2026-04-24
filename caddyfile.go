@@ -37,6 +37,11 @@ func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error)
 //	    mime_type    <mime>        # optional, e.g. application/json
 //	    facilitator_url <url>      # default: https://facilitator.goplausible.xyz
 //	    dry_run      [true|false]  # default: false
+//	    quote_url    <url>         # optional dynamic quote endpoint
+//	    quote_auth_header <value>  # optional static auth header for quote endpoint
+//	    quote_timeout_ms <int>     # optional timeout in ms for quote endpoint
+//	    settlement_gate_path_regex <regex> # optional, default ^/sessions/[^/]+/paid-action$
+//	    proof_shared_secret <value>        # required to sign settlement proof header
 //
 //	    # except: skip paywall for paths matching a regexp
 //	    except  ^/robots\.txt$
@@ -131,6 +136,40 @@ func (x *X402) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				return d.Errf("dry_run must be a boolean, got %q", d.Val())
 			}
 			x.DryRun = b
+
+		case "quote_url":
+			if !d.NextArg() {
+				return d.ArgErr()
+			}
+			x.QuoteURL = d.Val()
+
+		case "quote_auth_header":
+			if !d.NextArg() {
+				return d.ArgErr()
+			}
+			x.QuoteAuthHeader = d.Val()
+
+		case "quote_timeout_ms":
+			if !d.NextArg() {
+				return d.ArgErr()
+			}
+			timeout, err := strconv.Atoi(d.Val())
+			if err != nil || timeout < 0 {
+				return d.Errf("quote_timeout_ms must be a non-negative integer, got %q", d.Val())
+			}
+			x.QuoteTimeoutMS = timeout
+
+		case "settlement_gate_path_regex":
+			if !d.NextArg() {
+				return d.ArgErr()
+			}
+			x.SettlementGatePathRegex = d.Val()
+
+		case "proof_shared_secret":
+			if !d.NextArg() {
+				return d.ArgErr()
+			}
+			x.ProofSharedSecret = d.Val()
 
 		default:
 			return d.Errf("unknown x402 option: %q", d.Val())
